@@ -1,0 +1,23 @@
+{
+  "name": "saas-crm-pro",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c auto \"npm run dev -w @crm/api\" \"npm run dev -w @crm/web\"",
+    "build": "npm run build -w @crm/api && npm run build -w @crm/web",
+    "db:generate": "npm run db:generate -w @crm/api",
+    "db:migrate": "npm run db:migrate -w @crm/api",
+    "db:seed": "npm run db:seed -w @crm/api",
+    "test": "npm run test -w @crm/api",
+    "db:deploy": "npm run db:deploy -w @crm/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crm
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: crm
+    volumes:
+      - crm_prod_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://crm:crm@db:5432/crm?schema=public
+      WEB_ORIGIN: http://localhost:8080
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:?Set ACCESS_TOKEN_SECRET before starting}
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_SESSION_DAYS: 30
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+      GOOGLE_CLIENT_ID: ""
+    ports:
+      - "4000:4000"
+    command: ["sh", "-c", "npx prisma migrate deploy --config prisma7.config.ts && node dist/server.js"]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4000/api
+        VITE_GOOGLE_CLIENT_ID: ""
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  crm_prod_pgdata:

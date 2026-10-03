@@ -1,0 +1,19 @@
+import { Copy, Crown, RefreshCw, Shield, Trash2, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useWorkspace } from '../context/WorkspaceContext';
+import { api } from '../lib/api';
+import type { Member, Role } from '../types';
+
+export function TeamPage(){
+ const {activeOrg,refresh}=useWorkspace(); const [members,setMembers]=useState<Member[]>([]);const [code,setCode]=useState(activeOrg?.inviteCode||'');const [error,setError]=useState(''); const canAdmin=activeOrg&&['OWNER','ADMIN'].includes(activeOrg.role);
+ async function load(){if(!activeOrg)return;const d=await api<{members:Member[]}>(`/orgs/${activeOrg.id}/members`);setMembers(d.members);setCode(activeOrg.inviteCode)} useEffect(()=>{void load()},[activeOrg?.id,activeOrg?.inviteCode]);
+ async function roleChange(m:Member,role:Role){if(!activeOrg)return;try{await api(`/orgs/${activeOrg.id}/members/${m.id}`,{method:'PATCH',body:JSON.stringify({role})});await load()}catch(err){setError((err as Error).message)}}
+ async function remove(m:Member){if(!activeOrg||!confirm(`Remove ${m.user.name} from workspace?`))return;try{await api(`/orgs/${activeOrg.id}/members/${m.id}`,{method:'DELETE'});await load()}catch(err){setError((err as Error).message)}}
+ async function rotate(){if(!activeOrg)return;const d=await api<{inviteCode:string}>(`/orgs/${activeOrg.id}/rotate-invite`,{method:'POST'});setCode(d.inviteCode);await refresh()}
+ if(!activeOrg)return null;
+ return <div className="content-page"><div className="page-head"><div><span className="eyebrow dark">Workspace access</span><h1>Team</h1><p>Manage who can access {activeOrg.name} and what they can do.</p></div></div>{error&&<div className="alert error">{error}</div>}
+ {canAdmin ? <section className="panel invite-panel"><div><h2>Invite code</h2><p>Share this code with a teammate. They can join from onboarding.</p></div><div className="invite-code"><strong>{code}</strong><button className="icon-btn" onClick={()=>navigator.clipboard.writeText(code)} title="Copy"><Copy size={17}/></button><button className="icon-btn" onClick={rotate} title="Rotate code"><RefreshCw size={17}/></button></div></section> : <div className="alert info">Invite codes are visible only to workspace owners and admins.</div>}
+ <section className="panel table-panel"><div className="panel-head"><div><h2>Members</h2><p>{members.length} people have access.</p></div><Users size={20}/></div><div className="table-wrap"><table><thead><tr><th>Member</th><th>Role</th><th>Joined</th><th></th></tr></thead><tbody>{members.map(m=><tr key={m.id}><td><div className="person-cell"><div className="avatar small">{m.user.name[0]}</div><div><strong>{m.user.name}</strong><span>{m.user.email}</span></div></div></td><td>{m.role==='OWNER'?<span className="role-owner"><Crown size={14}/>OWNER</span>:canAdmin?<select value={m.role} onChange={e=>roleChange(m,e.target.value as Role)}><option value="MEMBER">MEMBER</option><option value="MANAGER">MANAGER</option>{activeOrg.role==='OWNER'&&<option value="ADMIN">ADMIN</option>}</select>:<span className="badge"><Shield size={13}/>{m.role}</span>}</td><td>{m.user.createdAt?new Date(m.user.createdAt).toLocaleDateString():'—'}</td><td>{canAdmin&&m.role!=='OWNER'&&<button className="icon-btn danger" onClick={()=>remove(m)} title="Remove"><Trash2 size={16}/></button>}</td></tr>)}</tbody></table></div></section>
+ <div className="permission-grid"><div><strong>Owner</strong><p>Full control, including admins and workspace settings.</p></div><div><strong>Admin</strong><p>Manage workspace, team, leads, tasks and audit access.</p></div><div><strong>Manager</strong><p>Manage pipeline, delete leads and review audit history.</p></div><div><strong>Member</strong><p>Create and update leads/tasks without administrative controls.</p></div></div>
+ </div>
+}

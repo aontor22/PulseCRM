@@ -1,0 +1,44 @@
+{
+  "name": "@crm/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name init",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "npm run build && node dist/seed.js",
+    "test": "cross-env DATABASE_URL=postgresql://crm:crm@localhost:5432/crm ACCESS_TOKEN_SECRET=test-secret-that-is-longer-than-thirty-two-characters vitest run"
+  },
+  "dependencies": {
+    "@prisma/client": "7.10.0",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "google-auth-library": "^10.3.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^4.1.11",
+    "@prisma/adapter-pg": "7.10.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.7.2",
+    "prisma": "7.10.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
+    "cross-env": "^10.1.0",
+    "@types/pg": "^8.15.5"
+  }
+}
