@@ -31,7 +31,7 @@ A portfolio-grade CRM built to demonstrate production-oriented full-stack engine
 
 - Node.js 22+
 - npm 10+
-- Docker Desktop / Docker Engine
+- Docker Desktop / Docker Engine **or** a local PostgreSQL 17+ installation
 
 ### 2. Environment
 
@@ -47,9 +47,17 @@ For local development, the defaults already target `localhost` PostgreSQL and th
 
 ### 3. Start PostgreSQL
 
+Choose **one** database option.
+
+**Option A — Docker:**
+
 ```bash
 docker compose up -d db
 ```
+
+**Option B — Windows local PostgreSQL (no Docker):**
+
+If PostgreSQL is already installed locally, follow [`docs/WINDOWS_LOCAL_POSTGRES.md`](docs/WINDOWS_LOCAL_POSTGRES.md). The supplied SQL creates the development `crm` role/database expected by the default `.env`.
 
 ### 4. Install dependencies
 
@@ -57,9 +65,10 @@ docker compose up -d db
 npm install
 ```
 
-### 5. Create database tables and seed demo data
+### 5. Verify DB, create tables and seed demo data
 
 ```bash
+npm run db:check
 npm run db:generate
 npm run db:migrate
 npm run db:seed
@@ -110,6 +119,7 @@ Every lead/task/dashboard/audit API request includes `x-organization-id`. The AP
 npm run dev
 npm run build
 npm run test
+npm run db:check
 npm run db:generate
 npm run db:migrate
 npm run db:seed

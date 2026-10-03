@@ -53,7 +53,8 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
   const body = leadInput.partial().parse(req.body);
-  const existing = await prisma.lead.findFirst({ where: { id: req.params.id, organizationId: req.org!.id } });
+  const leadId = String(req.params.id);
+  const existing = await prisma.lead.findFirst({ where: { id: leadId, organizationId: req.org!.id } });
   if (!existing) return res.status(404).json({ message: 'Lead not found' });
   if (body.ownerId !== undefined && !(await validMember(body.ownerId, req.org!.id))) return res.status(422).json({ message: 'Selected owner is not a workspace member' });
   const lead = await prisma.lead.update({ where: { id: existing.id }, data: { ...body, email: body.email === '' ? null : body.email }, include: { owner: { select: { id: true, name: true, email: true } } } });
@@ -62,7 +63,8 @@ router.patch('/:id', async (req, res) => {
 });
 
 router.delete('/:id', requireOrg('MANAGER'), async (req, res) => {
-  const existing = await prisma.lead.findFirst({ where: { id: req.params.id, organizationId: req.org!.id } });
+  const leadId = String(req.params.id);
+  const existing = await prisma.lead.findFirst({ where: { id: leadId, organizationId: req.org!.id } });
   if (!existing) return res.status(404).json({ message: 'Lead not found' });
   await prisma.lead.delete({ where: { id: existing.id } });
   await audit({ organizationId: req.org!.id, actorId: req.user!.id, action: 'lead.deleted', entityType: 'lead', entityId: existing.id });
