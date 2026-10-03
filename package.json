@@ -13,7 +13,8 @@
     "db:seed": "npm run db:seed -w @crm/api",
     "test": "npm run test -w @crm/api",
     "db:deploy": "npm run db:deploy -w @crm/api",
-    "db:check": "npm run db:check -w @crm/api"
+    "db:check": "npm run db:check -w @crm/api",
+    "db:migrate:dev": "npm run db:migrate:dev -w @crm/api"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

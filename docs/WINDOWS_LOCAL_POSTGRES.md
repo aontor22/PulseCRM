@@ -4,9 +4,12 @@ The project defaults to:
 
 ```env
 DATABASE_URL=postgresql://crm:crm@localhost:5432/crm?schema=public
+SHADOW_DATABASE_URL=postgresql://crm:crm@localhost:5432/crm_shadow?schema=public
 ```
 
-If Docker is not installed but PostgreSQL is already running on port `5432`, create the matching development role/database once.
+The `crm_shadow` database is only used when you intentionally run `npm run db:migrate:dev` to author a new migration. Normal project setup uses the committed migrations through `npm run db:migrate` (`prisma migrate deploy`) and does not require a shadow database.
+
+If Docker is not installed but PostgreSQL is already running on port `5432`, create the matching development role/database once. The supplied SQL also creates the optional `crm_shadow` database for Prisma development migrations.
 
 ## Option A — psql
 
@@ -24,7 +27,7 @@ If `psql` is not in PATH, use the executable directly, for example:
 & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -f scripts/setup-local-postgres.sql
 ```
 
-Adjust `17` to your installed PostgreSQL version.
+The leading `&` is **PowerShell syntax**. Do not paste that form into Git Bash. In Git Bash, either use `psql` from PATH or quote the executable path without PowerShell's call operator. Adjust `17` to your installed PostgreSQL version.
 
 ## Option B — keep your existing PostgreSQL user
 
@@ -56,3 +59,14 @@ npm run db:migrate
 npm run db:seed
 npm run dev
 ```
+
+
+## When changing `schema.prisma`
+
+Initial setup should use `npm run db:migrate`. If you later change the Prisma schema and need Prisma to create a new migration, first make sure `SHADOW_DATABASE_URL` exists in `apps/api/.env`, then run:
+
+```bash
+npm run db:migrate:dev
+```
+
+Never point `SHADOW_DATABASE_URL` at the same database as `DATABASE_URL`. Prisma resets the configured shadow database while calculating migrations.

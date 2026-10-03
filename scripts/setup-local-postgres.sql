@@ -15,6 +15,11 @@ SELECT 'CREATE DATABASE crm OWNER crm'
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'crm')\gexec
 
 ALTER DATABASE crm OWNER TO crm;
+
+SELECT 'CREATE DATABASE crm_shadow OWNER crm'
+WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'crm_shadow')\gexec
+
+ALTER DATABASE crm_shadow OWNER TO crm;
 \connect crm
 GRANT ALL ON SCHEMA public TO crm;
 ALTER SCHEMA public OWNER TO crm;

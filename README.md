@@ -74,6 +74,8 @@ npm run db:migrate
 npm run db:seed
 ```
 
+`db:migrate` applies the committed migrations with `prisma migrate deploy`, so initial setup does not require permission to create a temporary database. When you intentionally change `schema.prisma` during development, use `npm run db:migrate:dev`; the local setup script also creates the dedicated `crm_shadow` database used by Prisma Migrate.
+
 ### 6. Run frontend + backend
 
 ```bash
@@ -132,7 +134,7 @@ Before production deployment:
 1. Use a managed PostgreSQL database and strong `ACCESS_TOKEN_SECRET`.
 2. Set `COOKIE_SECURE=true`, choose an explicit `COOKIE_SAME_SITE` policy and use HTTPS-only origins.
 3. Set `WEB_ORIGIN` to the exact deployed frontend origin.
-4. Run `prisma migrate deploy` in the release pipeline instead of `migrate dev`.
+4. Use `npm run db:migrate` / `prisma migrate deploy` in release pipelines. Use `npm run db:migrate:dev` only while authoring new migrations locally.
 5. Configure Google OAuth only for your real domains.
 6. Add email verification/password reset provider if public signup is enabled.
 7. Add centralized logs/metrics and backups for the database.

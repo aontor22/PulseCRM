@@ -8,11 +8,12 @@
     "build": "prisma generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev --name init",
+    "db:migrate": "prisma migrate deploy",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "npm run build && node dist/seed.js",
     "test": "cross-env DATABASE_URL=postgresql://crm:crm@localhost:5432/crm ACCESS_TOKEN_SECRET=test-secret-that-is-longer-than-thirty-two-characters vitest run",
-    "db:check": "tsx src/db-check.ts"
+    "db:check": "tsx src/db-check.ts",
+    "db:migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
     "@prisma/client": "7.10.0",

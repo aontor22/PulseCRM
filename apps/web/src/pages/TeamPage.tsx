@@ -6,7 +6,7 @@ import type { Member, Role } from '../types';
 
 export function TeamPage(){
  const {activeOrg,refresh}=useWorkspace(); const [members,setMembers]=useState<Member[]>([]);const [code,setCode]=useState(activeOrg?.inviteCode||'');const [error,setError]=useState(''); const canAdmin=activeOrg&&['OWNER','ADMIN'].includes(activeOrg.role);
- async function load(){if(!activeOrg)return;const d=await api<{members:Member[]}>(`/orgs/${activeOrg.id}/members`);setMembers(d.members);setCode(activeOrg.inviteCode)} useEffect(()=>{void load()},[activeOrg?.id,activeOrg?.inviteCode]);
+ async function load(){if(!activeOrg)return;const d=await api<{members:Member[]}>(`/orgs/${activeOrg.id}/members`);setMembers(d.members);setCode(activeOrg.inviteCode || '')} useEffect(()=>{void load()},[activeOrg?.id,activeOrg?.inviteCode]);
  async function roleChange(m:Member,role:Role){if(!activeOrg)return;try{await api(`/orgs/${activeOrg.id}/members/${m.id}`,{method:'PATCH',body:JSON.stringify({role})});await load()}catch(err){setError((err as Error).message)}}
  async function remove(m:Member){if(!activeOrg||!confirm(`Remove ${m.user.name} from workspace?`))return;try{await api(`/orgs/${activeOrg.id}/members/${m.id}`,{method:'DELETE'});await load()}catch(err){setError((err as Error).message)}}
  async function rotate(){if(!activeOrg)return;const d=await api<{inviteCode:string}>(`/orgs/${activeOrg.id}/rotate-invite`,{method:'POST'});setCode(d.inviteCode);await refresh()}
